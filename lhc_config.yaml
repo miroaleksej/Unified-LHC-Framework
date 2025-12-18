@@ -1,0 +1,18 @@
+beam:
+  beam_energy: 6500
+  beta_star: 0.55
+  beta_x: 56.5
+  beta_y: 56.5
+  bunch_intensity: 115000000000.0
+  circumference: 26659
+  crossing_angle: 0.0
+  emittance: 2.5e-06
+  num_bunches: 2556
+  sigma_x: 0.045
+  sigma_y: 0.045
+geometry:
+  bending_magnets: 1232
+  radius: 4297
+  straight_sections: 8
+validation:
+  dataset_id: CMS_OpenData_2018
