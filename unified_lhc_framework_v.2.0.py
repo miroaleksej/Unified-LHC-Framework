@@ -1685,17 +1685,35 @@ class TopoAnalyzer:
         try:
             # Вычисляем корреляционную матрицу
             corr_matrix = np.corrcoef(self.feature_vectors.T)
-            
-            # Вычисляем собственные значения и векторы
-            eigenvalues, eigenvectors = np.linalg.eigh(corr_matrix)
-            
+
+            # Проверяем, является ли матрица корреляции корректной
+            if np.any(np.isnan(corr_matrix)) or np.any(np.isinf(corr_matrix)):
+                logger.warning("Обнаружены NaN или бесконечности в матрице корреляции.")
+                # Заменяем NaN на 0 и бесконечности на 1
+                corr_matrix = np.nan_to_num(corr_matrix, nan=0.0, posinf=1.0, neginf=-1.0)
+
+            # Вычисляем собственные значения и векторы с проверкой сходимости
+            try:
+                eigenvalues, eigenvectors = np.linalg.eigh(corr_matrix)
+            except np.linalg.LinAlgError:
+                logger.warning("Не удалось вычислить собственные значения напрямую, используем SVD")
+                # Альтернативный подход через сингулярное разложение
+                U, s, Vt = np.linalg.svd(corr_matrix)
+                eigenvalues = s
+                eigenvectors = U
+
             # Сортируем по убыванию
             idx = np.argsort(eigenvalues)[::-1]
             eigenvalues = eigenvalues[idx]
             eigenvectors = eigenvectors[:, idx]
-            
+
             # Используем константу вместо магического числа
-            condition_number = eigenvalues[0] / (eigenvalues[-1] + 1e-12)
+            # Проверяем, что нет нулей в знаменателе
+            if eigenvalues[-1] == 0.0:
+                condition_number = float('inf')
+            else:
+                condition_number = eigenvalues[0] / eigenvalues[-1]
+
             self.correlation_spectrum = {
                 'eigenvalues': eigenvalues,
                 'eigenvectors': eigenvectors,
@@ -2206,7 +2224,7 @@ class GradientCalibrator:
     
     def calibrate(self, initial_params: List[float], method: str = 'L-BFGS-B',
                   max_iterations: int = 100, tolerance: float = 1e-6):
-        """Калибрует параметры модели для достижения целевых наблюдаемых."""
+        """Калибрует параметры модели для достижени���� целевых наблюдаемых."""
         if len(initial_params) != len(self.parameters_to_calibrate):
             raise ValueError("Длина initial_params не соответствует количеству параметров для калибровки.")
         
@@ -2966,21 +2984,52 @@ class Visualization:
         """Визуализация параметров пучка во времени."""
         try:
             import matplotlib.pyplot as plt
-            
-            turns = range(len(state_history))
-            luminosity = [s['beam_dynamics']['luminosity'][-1] for s in state_history]
-            size_x = [s['beam_dynamics']['beam_size_x'][-1] for s in state_history]
-            size_y = [s['beam_dynamics']['beam_size_y'][-1] for s in state_history]
-            
+
+            # Проверяем, является ли state_history списком (как ожидается) или словарем
+            if isinstance(state_history, dict):
+                # Если передан словарь, извлекаем нужные данные
+                beam_dynamics = state_history
+                turns = beam_dynamics.get('turn', [])
+
+                # Проверяем, есть ли данные вообще
+                if not turns:
+                    logger.warning("Нет данных для визуализации параметров пучка.")
+                    return
+
+                luminosity = beam_dynamics.get('luminosity', [])
+                size_x = beam_dynamics.get('beam_size_x', [])
+                size_y = beam_dynamics.get('beam_size_y', [])
+
+                # Убедимся, что все списки имеют одинаковую длину
+                min_len = min(len(turns), len(luminosity), len(size_x), len(size_y))
+                if min_len == 0:
+                    logger.warning("Нет данных для визуализации параметров пучка.")
+                    return
+
+                turns = turns[:min_len]
+                luminosity = luminosity[:min_len]
+                size_x = size_x[:min_len]
+                size_y = size_y[:min_len]
+            else:
+                # Если передан список (старое поведение)
+                turns = range(len(state_history))
+                luminosity = [s.get('luminosity', [0])[-1] if isinstance(s.get('luminosity'), list) else s.get('luminosity', 0) for s in state_history]
+                size_x = [s.get('beam_size_x', [0])[-1] if isinstance(s.get('beam_size_x'), list) else s.get('beam_size_x', 0) for s in state_history]
+                size_y = [s.get('beam_size_y', [0])[-1] if isinstance(s.get('beam_size_y'), list) else s.get('beam_size_y', 0) for s in state_history]
+
+            if len(turns) == 0:
+                logger.warning("Нет данных для визуализации параметров пучка.")
+                return
+
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
-            
+
             # Светимость
             ax1.plot(turns, luminosity, 'b-')
             ax1.set_xlabel('Обороты')
             ax1.set_ylabel('Светимость (см⁻²с⁻¹)')
             ax1.set_title('Эволюция светимости')
             ax1.grid(True)
-            
+
             # Размеры пучка
             ax2.plot(turns, size_x, 'r-', label='σ_x')
             ax2.plot(turns, size_y, 'g-', label='σ_y')
@@ -2989,11 +3038,11 @@ class Visualization:
             ax2.set_title('Эволюция размеров пучка')
             ax2.legend()
             ax2.grid(True)
-            
+
             plt.tight_layout()
             self.plots.append(('beam_parameters', fig))
             plt.show()
-            
+
             logger.info("Визуализация параметров пучка завершена.")
         except Exception as e:
             logger.error(f"Ошибка при визуализации параметров пучка: {e}")
