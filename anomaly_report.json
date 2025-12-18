@@ -1,0 +1,13 @@
+{
+  "anomalies": {
+    "statistical": [],
+    "topological": [],
+    "model_behavior": [],
+    "custom": []
+  },
+  "summary": {
+    "total_count": 0,
+    "types_found": []
+  },
+  "timestamp": 1766045764.0032902
+}
