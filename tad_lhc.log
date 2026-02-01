@@ -1,0 +1,21 @@
+2026-02-01 21:00:09,647 - TAD-LHC.Main - INFO - ================================================================================
+2026-02-01 21:00:09,647 - TAD-LHC.Main - INFO - TOPOLOGICAL ANOMALY DETECTOR FOR LHC (TAD-LHC)
+2026-02-01 21:00:09,647 - TAD-LHC.Main - INFO - Scientifically rigorous implementation for CERN data analysis
+2026-02-01 21:00:09,647 - TAD-LHC.Main - INFO - ================================================================================
+2026-02-01 21:00:09,647 - TAD-LHC.Main - INFO - Running benchmark to verify system performance
+2026-02-01 21:00:09,647 - TAD-LHC.Benchmark - INFO - ================================================================================
+2026-02-01 21:00:09,647 - TAD-LHC.Benchmark - INFO - TAD-LHC BENCHMARK STARTED
+2026-02-01 21:00:09,647 - TAD-LHC.Benchmark - INFO - Configuration: 100000 events, 100 bins, dimension 3
+2026-02-01 21:00:09,647 - TAD-LHC.Benchmark - INFO - ================================================================================
+2026-02-01 21:00:09,647 - TAD-LHC.Benchmark - INFO - Generating 100000 test events
+2026-02-01 21:00:09,647 - TAD-LHC.CERNIntegration - INFO - Simulating ROOT file reading
+2026-02-01 21:00:09,674 - TAD-LHC.Benchmark - INFO - Injecting 1000 simulated anomalies
+2026-02-01 21:00:09,676 - TAD-LHC.Benchmark - INFO - Processing events with topological analysis
+2026-02-01 21:00:09,676 - TAD-LHC.Hypercube - INFO - Building hypercube with 10000 events
+2026-02-01 21:00:09,742 - TAD-LHC.Hypercube - INFO - Hypercube built in 0.0656 seconds
+2026-02-01 21:00:28,885 - TAD-LHC.Hypercube - INFO - Event distribution: min=0.0, max=1.0, mean=0.0000
+2026-02-01 21:00:28,886 - TAD-LHC.AnomalyDetector - INFO - Starting anomaly detection for 10000 events
+2026-02-01 21:00:28,886 - TAD-LHC.Hypercube - INFO - Building hypercube with 10000 events
+2026-02-01 21:00:28,932 - TAD-LHC.Hypercube - INFO - Hypercube built in 0.0464 seconds
+2026-02-01 21:00:48,394 - TAD-LHC.Hypercube - INFO - Event distribution: min=0.0, max=1.0, mean=0.0000
+2026-02-01 21:00:48,394 - TAD-LHC.Hypercube - INFO - Computing Betti numbers
